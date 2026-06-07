@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hunter Engine | Free Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ee;
+    --cream: #ede9e3;
+    --accent: #c8a96e;
+    --accent-dim: #9c7e4a;
+    --red: #c84b3a;
+    --mid: #2a2825;
+    --border: rgba(200,169,110,0.2);
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* HOME PAGE */
+  #home {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .nav-tag {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(245,242,238,0.3);
+    text-transform: uppercase;
+  }
+
+  .hero {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 80px);
+  }
+
+  .hero-left {
+    padding: 80px 48px 80px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(42px, 5vw, 72px);
+    line-height: 1.05;
+    color: var(--white);
+    margin-bottom: 28px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(245,242,238,0.55);
+    max-width: 420px;
+    margin-bottom: 56px;
+  }
+
+  .hero-note {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: rgba(245,242,238,0.25);
+    text-transform: uppercase;
+  }
+
+  .hero-right {
+    padding: 80px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+    background: rgba(255,255,255,0.01);
+  }
+
+  .audit-card {
+    border: 1px solid var(--border);
+    padding: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .audit-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,169,110,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .audit-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .audit-card:hover::before { opacity: 1; }
+
+  .audit-card-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .audit-card-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    color: var(--white);
+  }
+
+  .audit-card-desc {
+    font-size: 12px;
+    line-height: 1.7;
+    color: rgba(245,242,238,0.45);
+    margin-bottom: 28px;
+  }
+
+  .audit-card-cta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .audit-card-cta::after {
+    content: '→';
+    transition: transform 0.2s ease;
+  }
+
+  .audit-card:hover .audit-card-cta::after {
+    transform: translateX(4px);
+  }
+
+  .both-link {
+    text-align: center;
+    padding: 16px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,242,238,0.3);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    border: 1px solid transparent;
+  }
+
+  .both-link:hover {
+    color: var(--white);
+    border-color: var(--border);
+  }
+
+  /* AUDIT PAGES */
+  .audit-page {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  .audit-page.active {
+    display: flex;
+  }
+
+  .audit-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back-btn {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,242,238,0.4);
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+  }
+
+  .back-btn::before { content: '←'; }
+  .back-btn:hover { color: var(--white); }
+
+  .audit-nav-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .progress-bar {
+    height: 1px;
+    background: rgba(200,169,110,0.15);
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .audit-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 48px;
+    gap: 80px;
+    align-items: start;
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .audit-sidebar {
+    position: sticky;
+    top: 80px;
+  }
+
+  .audit-sidebar-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .audit-sidebar-title {
+    font-family: var(--serif);
+    font-size: 36px;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    color: var(--white);
+  }
+
+  .audit-sidebar-desc {
+    font-size: 12px;
+    line-height: 1.8;
+    color: rgba(245,242,238,0.4);
+    margin-bottom: 40px;
+  }
+
+  .step-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .step-dot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 10px;
+    color: rgba(245,242,238,0.2);
+    letter-spacing: 0.1em;
+    transition: color 0.3s;
+  }
+
+  .step-dot.active { color: var(--accent); }
+  .step-dot.done { color: rgba(245,242,238,0.4); }
+
+  .step-dot-circle {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .questions-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .question-block {
+    display: none;
+    flex-direction: column;
+    animation: fadeUp 0.4s ease forwards;
+  }
+
+  .question-block.active {
+    display: flex;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-family: var(--serif);
+    font-size: 28px;
+    line-height: 1.3;
+    margin-bottom: 32px;
+    color: var(--white);
+  }
+
+  .q-hint {
+    font-size: 11px;
+    color: rgba(245,242,238,0.3);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* INPUT STYLES */
+  .text-input {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 16px 20px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  .text-input:focus { border-color: var(--accent); }
+  .text-input::placeholder { color: rgba(245,242,238,0.2); }
+
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    color: rgba(245,242,238,0.6);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    letter-spacing: 0.02em;
+  }
+
+  .option-btn:hover {
+    border-color: var(--accent);
+    color: var(--white);
+    background: rgba(200,169,110,0.05);
+  }
+
+  .option-btn.selected {
+    border-color: var(--accent);
+    color: var(--white);
+    background: rgba(200,169,110,0.08);
+  }
+
+  .option-letter {
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    min-width: 16px;
+  }
+
+  /* VOICE */
+  .voice-area {
+    margin-bottom: 16px;
+  }
+
+  .voice-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 24px;
+    background: none;
+    border: 1px solid var(--border);
+    color: rgba(245,242,238,0.5);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .voice-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .voice-btn.recording {
+    border-color: var(--red);
+    color: var(--red);
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .voice-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .voice-transcript {
+    font-size: 12px;
+    color: rgba(245,242,238,0.5);
+    line-height: 1.6;
+    min-height: 20px;
+    font-style: italic;
+  }
+
+  /* NAV BUTTONS */
+  .q-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-next {
+    padding: 14px 32px;
+    background: var(--accent);
+    color: var(--black);
+    border: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .btn-next:hover { background: #d4b97e; }
+  .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .btn-prev {
+    background: none;
+    border: none;
+    color: rgba(245,242,238,0.3);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .btn-prev:hover { color: var(--white); }
+
+  /* SUBMIT PAGE */
+  .submit-page {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 48px;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .submit-page.active { display: flex; }
+
+  .submit-icon {
+    width: 64px;
+    height: 64px;
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 40px;
+    font-size: 24px;
+    color: var(--accent);
+  }
+
+  .submit-title {
+    font-family: var(--serif);
+    font-size: 52px;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .submit-sub {
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(245,242,238,0.45);
+    max-width: 480px;
+    margin: 0 auto 48px;
+  }
+
+  .submit-detail {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(245,242,238,0.2);
+    text-transform: uppercase;
+    line-height: 2;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { border-right: none; border-bottom: 1px solid var(--border); padding: 60px 32px; }
+    .hero-right { padding: 40px 32px; }
+    .audit-body { grid-template-columns: 1fr; padding: 40px 24px; gap: 40px; }
+    .audit-sidebar { position: static; }
+    .nav, .audit-nav { padding: 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home">
+  <nav class="nav">
+    <div class="nav-logo">Hunter Engine</div>
+    <div class="nav-tag">Signal-Driven Growth</div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Free Audit</div>
+      <h1 class="hero-title">Find out what's <em>costing</em> you clients.</h1>
+      <p class="hero-sub">Most clinics and studios lose clients before they ever make contact. Invisible on search. Slow to follow up. No system catching the gaps. Pick your audit and I'll show you exactly what's broken.</p>
+      <div class="hero-note">No pitch. No call required. Results in 24 hours.</div>
+    </div>
+
+    <div class="hero-right">
+      <div class="audit-card" onclick="showAudit('seo')">
+        <div class="audit-card-label">Option A</div>
+        <div class="audit-card-title">AI SEO Audit</div>
+        <div class="audit-card-desc">Find out why your clinic or studio isn't showing up when potential clients search online. I audit your website and visibility across Google and AI search tools like Perplexity and ChatGPT Search.</div>
+        <div class="audit-card-cta">Start SEO Audit</div>
+      </div>
+
+      <div class="audit-card" onclick="showAudit('ops')">
+        <div class="audit-card-label">Option B</div>
+        <div class="audit-card-title">AI Ops &amp; Growth Audit</div>
+        <div class="audit-card-desc">Find out where your clinic or studio is losing clients to slow follow-up, missed enquiries, and manual admin. I map the gaps and show you what an automated system would fix.</div>
+        <div class="audit-card-cta">Start Ops Audit</div>
+      </div>
+
+      <div class="both-link" onclick="showHome()">Back to Home</div>
+    </div>
+  </div>
+</div>
+
+<!-- SEO AUDIT -->
+<div id="seo-audit" class="audit-page">
+  <nav class="audit-nav">
+    <button class="back-btn" onclick="showHome()">Back</button>
+    <div class="audit-nav-title">AI SEO Audit</div>
+    <div style="width:60px"></div>
+  </nav>
+  <div class="progress-bar"><div class="progress-fill" id="seo-progress"></div></div>
+
+  <div class="audit-body">
+    <div class="audit-sidebar">
+      <div class="audit-sidebar-label">AI SEO Audit</div>
+      <div class="audit-sidebar-title">Where are you invisible?</div>
+      <div class="audit-sidebar-desc">Answer a few questions. I'll audit your visibility across Google Maps, local search, and AI tools. You'll get a specific list of what to fix first.</div>
+      <div class="step-indicators" id="seo-steps"></div>
+    </div>
+
+    <div class="questions-panel" id="seo-questions"></div>
+  </div>
+</div>
+
+<!-- OPS AUDIT -->
+<div id="ops-audit" class="audit-page">
+  <nav class="audit-nav">
+    <button class="back-btn" onclick="showHome()">Back</button>
+    <div class="audit-nav-title">AI Ops &amp; Growth Audit</div>
+    <div style="width:60px"></div>
+  </nav>
+  <div class="progress-bar"><div class="progress-fill" id="ops-progress"></div></div>
+
+  <div class="audit-body">
+    <div class="audit-sidebar">
+      <div class="audit-sidebar-label">AI Ops &amp; Growth Audit</div>
+      <div class="audit-sidebar-title">Where are clients falling through?</div>
+      <div class="audit-sidebar-desc">Tell me how your business runs today. I'll map the gaps and show you exactly what an automated system would fix and what it's worth to fix it.</div>
+      <div class="step-indicators" id="ops-steps"></div>
+    </div>
+
+    <div class="questions-panel" id="ops-questions"></div>
+  </div>
+</div>
+
+<!-- SUBMIT CONFIRMATION -->
+<div id="submitted" class="submit-page">
+  <div class="submit-icon">✓</div>
+  <div class="submit-title">Your audit<br>is in.</div>
+  <div class="submit-sub">I personally review every submission and send your personalised audit report and dashboard within 24 hours. No call needed unless you want one after you review it.</div>
+  <div class="submit-detail">
+    Hunter Engine<br>
+    hunterengine.com
+  </div>
+</div>
+
+<script>
+const seoQuestions = [
+  {
+    id: 'name',
+    type: 'text',
+    label: 'Your Name',
+    question: 'What is your name?',
+    placeholder: 'Full name'
+  },
+  {
+    id: 'email',
+    type: 'text',
+    label: 'Email',
+    question: 'Best email to send your audit to?',
+    placeholder: 'your@email.com'
+  },
+  {
+    id: 'website',
+    type: 'text',
+    label: 'Website',
+    question: 'What is your business website URL?',
+    placeholder: 'https://yourclinic.com',
+    hint: 'This is what I will audit. Make sure it is live.'
+  },
+  {
+    id: 'business_type',
+    type: 'options',
+    label: 'Business Type',
+    question: 'What best describes your business?',
+    options: ['Wellness Clinic', 'Pilates / Fitness Studio', 'Aesthetic / Skin Clinic', 'Medical Spa', 'Other']
+  },
+  {
+    id: 'location',
+    type: 'voice',
+    label: 'Location',
+    question: 'What city or area do you serve?',
+    placeholder: 'e.g. Sydney CBD, North London, Dubai Marina'
+  },
+  {
+    id: 'challenge',
+    type: 'options',
+    label: 'Main Challenge',
+    question: 'What is your biggest challenge right now?',
+    options: [
+      'Not showing up on Google Maps',
+      'Competitors rank above me on Google',
+      'AI tools like ChatGPT and Perplexity don\'t mention my business',
+      'My website gets no traffic',
+      'I don\'t know where to start'
+    ]
+  },
+  {
+    id: 'gbp',
+    type: 'options',
+    label: 'Google Business Profile',
+    question: 'Do you have a Google Business Profile set up?',
+    options: ['Yes, fully set up', 'Yes but I rarely update it', 'Not sure', 'No']
+  },
+  {
+    id: 'goal',
+    type: 'voice',
+    label: 'Your Goal',
+    question: 'What does winning look like for you in the next 90 days?',
+    placeholder: 'e.g. More new client bookings from Google, rank above competitors in my area',
+    hint: 'Speak freely or type. The more specific you are, the more useful the audit.'
+  }
+];
+
+const opsQuestions = [
+  {
+    id: 'name',
+    type: 'text',
+    label: 'Your Name',
+    question: 'What is your name?',
+    placeholder: 'Full name'
+  },
+  {
+    id: 'email',
+    type: 'text',
+    label: 'Email',
+    question: 'Best email to send your audit to?',
+    placeholder: 'your@email.com'
+  },
+  {
+    id: 'website',
+    type: 'text',
+    label: 'Website',
+    question: 'What is your business website URL?',
+    placeholder: 'https://yourclinic.com',
+    hint: 'I will review this as part of the audit.'
+  },
+  {
+    id: 'business_type',
+    type: 'options',
+    label: 'Business Type',
+    question: 'What best describes your business?',
+    options: ['Wellness Clinic', 'Pilates / Fitness Studio', 'Aesthetic / Skin Clinic', 'Medical Spa', 'Other']
+  },
+  {
+    id: 'enquiry_handling',
+    type: 'options',
+    label: 'Enquiry Handling',
+    question: 'How do you currently handle new enquiries?',
+    options: [
+      'I handle them manually myself',
+      'Someone on my team handles them',
+      'We have a booking system but it is basic',
+      'Honestly, some get missed'
+    ]
+  },
+  {
+    id: 'after_hours',
+    type: 'voice',
+    label: 'After Hours',
+    question: 'What happens when someone contacts you after hours or on weekends?',
+    placeholder: 'e.g. They leave a voicemail and wait, they fill a form and I reply Monday, nothing happens',
+    hint: 'This is usually where the biggest leaks are. Be honest.'
+  },
+  {
+    id: 'monthly_enquiries',
+    type: 'options',
+    label: 'Monthly Enquiries',
+    question: 'Roughly how many new client enquiries do you get per month?',
+    options: ['Under 10', '10 to 30', '30 to 60', 'Over 60', 'I don\'t track this']
+  },
+  {
+    id: 'biggest_pain',
+    type: 'options',
+    label: 'Biggest Pain',
+    question: 'Where do you feel the most friction in your operations right now?',
+    options: [
+      'Too much manual admin, not enough time',
+      'Leads coming in but not converting',
+      'No visibility on what is working',
+      'Client follow-up falls through the cracks',
+      'Everything is in my head, nothing is systematised'
+    ]
+  },
+  {
+    id: 'goal',
+    type: 'voice',
+    label: 'Your Goal',
+    question: 'What would need to change in your business to make the next 90 days feel different?',
+    placeholder: 'e.g. Stop spending my evenings on admin, have a system that follows up for me, know my numbers',
+    hint: 'Speak freely or type. The more specific the better.'
+  }
+];
+
+const state = {
+  seo: { current: 0, answers: {}, recording: false },
+  ops: { current: 0, answers: {}, recording: false }
+};
+
+let recognition = null;
+
+function buildAudit(type, questions) {
+  const stepsEl = document.getElementById(`${type}-steps`);
+  const questionsEl = document.getElementById(`${type}-questions`);
+  stepsEl.innerHTML = '';
+  questionsEl.innerHTML = '';
+
+  questions.forEach((q, i) => {
+    // Step dot
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i === 0 ? ' active' : '');
+    dot.id = `${type}-dot-${i}`;
+    dot.innerHTML = `<div class="step-dot-circle"></div>${q.label}`;
+    stepsEl.appendChild(dot);
+
+    // Question block
+    const block = document.createElement('div');
+    block.className = 'question-block' + (i === 0 ? ' active' : '');
+    block.id = `${type}-q-${i}`;
+
+    let inputHTML = '';
+    if (q.type === 'text') {
+      inputHTML = `<textarea class="text-input" rows="2" placeholder="${q.placeholder || ''}" id="${type}-input-${i}" oninput="saveAnswer('${type}', ${i}, this.value)"></textarea>`;
+    } else if (q.type === 'voice') {
+      inputHTML = `<textarea class="text-input" rows="3" placeholder="${q.placeholder || 'Type your answer here'}" id="${type}-input-${i}" oninput="saveAnswer('${type}', ${i}, this.value)"></textarea>`;
+    } else if (q.type === 'options') {
+      inputHTML = `<div class="options-grid">${q.options.map((opt, oi) => `
+        <button class="option-btn" id="${type}-opt-${i}-${oi}" onclick="selectOption('${type}', ${i}, ${oi}, '${opt.replace(/'/g,"\\'")}')">
+          <span class="option-letter">${String.fromCharCode(65+oi)}</span>${opt}
+        </button>`).join('')}</div>`;
+    }
+
+    block.innerHTML = `
+      <div class="q-number">Question ${i+1} of ${questions.length}</div>
+      <div class="q-text">${q.question}</div>
+      ${q.hint ? `<div class="q-hint">${q.hint}</div>` : ''}
+      ${inputHTML}
+      <div class="q-actions">
+        ${i > 0 ? `<button class="btn-prev" onclick="prevQ('${type}', ${i})">Back</button>` : '<div></div>'}
+        <button class="btn-next" id="${type}-next-${i}" onclick="nextQ('${type}', ${i})" ${i === 0 ? '' : ''}>
+          ${i === questions.length - 1 ? 'Submit Audit' : 'Next'}
+        </button>
+      </div>
+    `;
+    questionsEl.appendChild(block);
+  });
+}
+
+function updateProgress(type) {
+  const questions = type === 'seo' ? seoQuestions : opsQuestions;
+  const pct = ((state[type].current + 1) / questions.length) * 100;
+  document.getElementById(`${type}-progress`).style.width = pct + '%';
+
+  questions.forEach((_, i) => {
+    const dot = document.getElementById(`${type}-dot-${i}`);
+    if (!dot) return;
+    dot.className = 'step-dot' + (i === state[type].current ? ' active' : i < state[type].current ? ' done' : '');
+  });
+}
+
+function saveAnswer(type, idx, val) {
+  const questions = type === 'seo' ? seoQuestions : opsQuestions;
+  state[type].answers[questions[idx].id] = val;
+}
+
+function selectOption(type, qIdx, optIdx, val) {
+  const questions = type === 'seo' ? seoQuestions : opsQuestions;
+  const q = questions[qIdx];
+  q.options.forEach((_, oi) => {
+    const btn = document.getElementById(`${type}-opt-${qIdx}-${oi}`);
+    if (btn) btn.classList.toggle('selected', oi === optIdx);
+  });
+  state[type].answers[q.id] = val;
+}
+
+function nextQ(type, idx) {
+  const questions = type === 'seo' ? seoQuestions : opsQuestions;
+  const q = questions[idx];
+  const ans = state[type].answers[q.id];
+
+  if (!ans || ans.trim() === '') {
+    const input = document.getElementById(`${type}-input-${idx}`);
+    if (input) { input.style.borderColor = 'var(--red)'; setTimeout(() => input.style.borderColor = '', 1500); }
+    return;
+  }
+
+  if (idx === questions.length - 1) {
+    submitAudit(type);
+    return;
+  }
+
+  document.getElementById(`${type}-q-${idx}`).classList.remove('active');
+  state[type].current = idx + 1;
+  document.getElementById(`${type}-q-${idx+1}`).classList.add('active');
+  updateProgress(type);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevQ(type, idx) {
+  document.getElementById(`${type}-q-${idx}`).classList.remove('active');
+  state[type].current = idx - 1;
+  document.getElementById(`${type}-q-${idx-1}`).classList.add('active');
+  updateProgress(type);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleVoice(type, idx) {
+  const btn = document.getElementById(`${type}-voice-${idx}`);
+  const label = document.getElementById(`${type}-voice-label-${idx}`);
+  const transcriptEl = document.getElementById(`${type}-transcript-${idx}`);
+  const inputEl = document.getElementById(`${type}-input-${idx}`);
+
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    transcriptEl.textContent = 'Voice not supported in this browser. Please type your answer.';
+    return;
+  }
+
+  if (state[type].recording) {
+    recognition && recognition.stop();
+    state[type].recording = false;
+    btn.classList.remove('recording');
+    label.textContent = 'Speak your answer';
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    if (final) {
+      const current = inputEl.value;
+      inputEl.value = (current ? current + ' ' : '') + final;
+      saveAnswer(type, idx, inputEl.value);
+    }
+    transcriptEl.textContent = interim;
+  };
+
+  recognition.onerror = () => {
+    state[type].recording = false;
+    btn.classList.remove('recording');
+    label.textContent = 'Speak your answer';
+  };
+
+  recognition.onend = () => {
+    if (state[type].recording) recognition.start();
+  };
+
+  recognition.start();
+  state[type].recording = true;
+  btn.classList.add('recording');
+  label.textContent = 'Recording... click to stop';
+}
+
+async function submitAudit(type) {
+  const questions = type === 'seo' ? seoQuestions : opsQuestions;
+  const answers = state[type].answers;
+  const auditLabel = type === 'seo' ? 'AI SEO Audit' : 'AI Ops and Growth Audit';
+
+  // Replace this with your deployed Apps Script web app URL
+  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbw0z7oRR7daUJzUUiLvbBr3JuACctvzpCIyKQLV0YYWFYt_wdB4EgPC7BOokNXveTs/exec';
+
+  const payload = {
+    audit_type: auditLabel,
+    submitted_at: new Date().toISOString(),
+    ...answers
+  };
+
+  try {
+    const params = new URLSearchParams({ data: JSON.stringify(payload) });
+    await fetch(`${WEBHOOK_URL}?${params.toString()}`, {
+      method: 'GET',
+      mode: 'no-cors'
+    });
+  } catch (err) {
+    console.error('Submission error:', err);
+  }
+
+  document.getElementById(`${type}-audit`).classList.remove('active');
+  document.getElementById('submitted').classList.add('active');
+  window.scrollTo({ top: 0 });
+}
+
+function showAudit(type) {
+  document.getElementById('home').style.display = 'none';
+  document.getElementById(`${type}-audit`).classList.add('active');
+  state[type].current = 0;
+  buildAudit(type, type === 'seo' ? seoQuestions : opsQuestions);
+  updateProgress(type);
+  window.scrollTo({ top: 0 });
+}
+
+function showHome() {
+  document.getElementById('home').style.display = 'flex';
+  document.getElementById('seo-audit').classList.remove('active');
+  document.getElementById('ops-audit').classList.remove('active');
+  document.getElementById('submitted').classList.remove('active');
+  window.scrollTo({ top: 0 });
+}
+</script>
+</body>
+</html>
